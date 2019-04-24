@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: pdms      
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    volumes:
+      - ./pdms_dump.sql:/docker-entrypoint-initdb.d/pdms_dump.sql
+
+  web:
+    image: mt2018124/pdms_01:latest
+    restart: always
+    ports:
+      - 8054:8054
+    depends_on:
+      - db
+    volumes:
+      - /data/web 

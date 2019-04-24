@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Package Delivery Management System</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--===============================================================================================-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"/>
+
+    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+
+    <link rel="stylesheet" type="text/css" href="css/home.css" />
+    <!--===============================================================================================-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+  
+  $(document).ready(function() {
+	$("#context").hide();
+	$("#addpkg").hide();
+	$("#status").empty();
+	var api = "http://localhost:8055/PDMS/webapi/Students/getAll";
+	var dataList = document.getElementById('names');
+  	$.get(api , function(data, status){
+			data.forEach(function(item){
+				var option = document.createElement('option');
+		        option.value = item.name;
+		        option.id = item.id;
+		        dataList.appendChild(option);
+			});		
+	});  	
+  });
+  function showDetails(){
+	  
+	  var optionSelected = $("#search").val();
+	  stud_id = $('#names').find('option[value="' +optionSelected+ '"]').attr('id');
+	  localStorage.setItem('studID',stud_id);
+	  
+	  getAll();
+	  
+	  $("#context").show();
+  }
+  
+  function getAll(){
+	  var api = "http://localhost:8055/PDMS/webapi/Packages/getAll/"+localStorage.getItem('studID');
+	  $.get(api , function(data, status){
+		    $("#status").empty();
+			data.forEach(function(item){
+				var row = "";
+				row += "<tr><td>" + item.pkg_id + "</td><td>" + item.pkg_entry_time + "</td><td>" + item.provider_name  + "</td><td>" + item.storeroom_status  + "</td><td>" + item.pkg_collect_time + "</td><td>" + item.reciever_name  + "</td>";
+
+				if(!item.collect_status){
+	               row += "<td class='text-right'><div class='btn-group btn btn-danger' role='group' data-target='#Mymodal' data-toggle='modal' onclick='setPkgId("+item.pkg_id+");'>Received? </div>";
+	            }
+				else{
+					row += "<td class='text-right'><div class='btn-group btn btn-success' role='group'>Received</td>";
+				}
+				
+	            row += "</tr>";
+				$(row).appendTo("#status");
+			});		
+	  });
+  }
+  
+  function setPkgId(pkg_id){
+	  localStorage.setItem('pkg_id',pkg_id);
+  }
+  
+  function setreceived(){
+
+	  var time = new Date().toString();
+	    
+	    var data = {
+	    		recname	: $("#recname").val(),
+	    		recroll	: $("#recroll").val(),
+	    		collect_time : time,
+	    		pkg_id :  localStorage.getItem('pkg_id')
+	    };
+	    
+	    $.ajax({
+	    	type: "POST",
+	        url: "http://localhost:8055/PDMS/webapi/Packages/setReceived/"+localStorage.getItem('studID'),
+	        data: data,
+	        cache: false,
+	        success:function(result){
+	    		getAll();
+	        }
+	    });
+  }
+  
+  function addPackage(){
+	  $("#addpkg").toggle();
+  }
+  function addpkg(){
+	  
+	    var time = new Date().toString();
+	    var pkg_id = $("#pkgid").val();
+	    var pkg_pdr = $("#pkgpdr").val();
+	    
+	    var data = {
+	    		pkgid	: pkg_id,
+	    		pkgpdr	: pkg_pdr,
+	    		entry_time	: time
+	    };
+	    
+	    $.ajax({
+	    	type: "POST",
+	        url: "http://localhost:8055/PDMS/webapi/Packages/addPkg/"+localStorage.getItem('studID'),
+	        data: data,
+	        cache: false,
+	        success:function(result){
+	        	//alert("Successfully added package!!!");
+	        	$("#addpkg")[0].reset();
+	    		getAll();
+	    		sendMail(pkg_id);
+	        }
+	    });
+  }
+  
+  function sendMail(pkgid){
+	  
+	  var pkg_id = pkgid;
+	  var stud_id = localStorage.getItem('studID');
+	  alert(pkg_id);
+	  alert(stud_id);
+	  $.ajax({
+	    	type: "GET",
+	        url: "http://localhost:8055/PDMS/webapi/Packages/sendMailOnAdd/"+stud_id+"/"+pkgid,
+	        success:function(result){
+	        	alert(result);
+	        }
+	    });
+  }
+  </script>
+  </head>
+  <body class="bg">
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <ul class="nav navbar-nav">
+            <li>
+              <a class="navbar-brand active" href="#">Package Delivery Management System</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <div id="packageDeliverySystem">
+        <!-- Search form -->
+        <h3>Search for Users</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <input class="form-control" type="text" placeholder="Search" list="names" id="search"/>
+            <br />
+          </div>
+          <div class="col-md-6">
+            <button type="button" class="btn btn-primary" onclick="showDetails();">Search</button>
+          </div>
+        </div>
+        
+        <datalist id="names">
+        </datalist>
+        
+		<div id="context">
+			<div class="container">
+				<div class="row">
+			        <div class="col-xs-1">
+			  			<img src="plus.png" height="25" width="25" onclick="addPackage();">
+			        </div>
+			        <div class="col-xs-11">
+			        	<h3>Add a new package</h3>
+			        </div>
+		        </div>
+	        </div>
+	        <br>
+	        <br>
+	        <form method="post" id="addpkg" class="form-inline">
+			  <div class="form-group">
+			    <label for="pkgid">Package Id:</label>
+			    <input type="text" class="form-control" id="pkgid">
+			  </div>
+	          <div class="form-group">
+			    <label for="pkgpdr">&emsp; Package Provider:</label>
+			    <input type="text" class="form-control" id="pkgpdr">
+			  </div>
+			  <br>
+			  <br>
+			  <button type="button" class="btn btn-primary" onclick="addpkg();">Submit</button>
+	        </form>
+	      	
+	      	<br>
+	      	
+	        <div class="table-responsive">
+	          <table class="table">
+	            <thead>
+	              <tr>
+	                <th>Package ID</th>
+	                <th>Entry Time</th>
+	                <th>Provider Name</th>
+	                <th>Store Room Status</th>
+	                <th>Received Time</th>
+	                <th>Receiver Name</th>
+	                <th>Received status</th>
+	              </tr>
+	            </thead>
+	            <tbody id="status">
+	            </tbody>
+	          </table>
+	        </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- .modal -->
+	<div class="modal fade" id="Mymodal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button> 
+					<h4 class="modal-title">Enter Receiver Details:</h4>                                                             
+				</div> 
+				<div class="modal-body">
+					<form method="post">
+						<div class="form-group">
+						    <label for="recname">Receiver Name:</label>
+						    <input type="text" class="form-control" id="recname">
+					  	</div>
+			            <div class="form-group">
+						    <label for="recroll">Receiver Roll no:</label>
+						    <input type="text" class="form-control" id="recroll">
+					  	</div>
+						<br>
+					  	<button type="button" class="btn btn-primary" onclick="setreceived();" data-dismiss="modal">Submit</button>
+					</form>
+				</div>   
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>                               
+				</div>
+			</div>                                                                       
+		</div>                                          
+	</div>
+    <!--===============================================================================================-->
+  </body>
+</html>
