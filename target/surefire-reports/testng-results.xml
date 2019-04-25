@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" ignored="0" total="4" passed="4">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Surefire suite" duration-ms="8121" started-at="2019-04-25T16:25:25Z" finished-at="2019-04-25T16:25:33Z">
+    <groups>
+    </groups>
+    <test name="Surefire test" duration-ms="8121" started-at="2019-04-25T16:25:25Z" finished-at="2019-04-25T16:25:33Z">
+      <class name="tests.SampleTest">
+        <test-method status="PASS" signature="testAdd()[pri:0, instance:tests.SampleTest@1324409e]" name="testAdd" duration-ms="4533" started-at="2019-04-25T21:55:25Z" finished-at="2019-04-25T21:55:30Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testAdd -->
+        <test-method status="PASS" signature="testDelete()[pri:0, instance:tests.SampleTest@1324409e]" name="testDelete" duration-ms="25" started-at="2019-04-25T21:55:30Z" finished-at="2019-04-25T21:55:30Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testDelete -->
+        <test-method status="PASS" signature="testMail()[pri:0, instance:tests.SampleTest@1324409e]" name="testMail" duration-ms="3523" started-at="2019-04-25T21:55:30Z" finished-at="2019-04-25T21:55:33Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testMail -->
+        <test-method status="PASS" signature="testreceived()[pri:0, instance:tests.SampleTest@1324409e]" name="testreceived" duration-ms="4" started-at="2019-04-25T21:55:33Z" finished-at="2019-04-25T21:55:33Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testreceived -->
+      </class> <!-- tests.SampleTest -->
+    </test> <!-- Surefire test -->
+  </suite> <!-- Surefire suite -->
+</testng-results>
